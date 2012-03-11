@@ -1,4 +1,5 @@
 require 'base64'
+require './app/models/content.rb'
 
 module Admin; end
 class Admin::ContentController < Admin::BaseController
@@ -50,6 +51,16 @@ class Admin::ContentController < Admin::BaseController
     @record.destroy
     flash[:notice] = _("This article was deleted successfully")
     redirect_to :action => 'index'
+  end
+  
+  def merge_articles
+    if (Article.merge(params[:id], params[:merge]))
+      flash[:notice] = _("Article #{params[:merge]} was successfully merged with #{params[:id]}")
+      redirect_to :action => 'index'
+    else
+      flash[:error] = _('Article merging failed.')
+      redirect_to :action => 'index'
+    end
   end
 
   def insert_editor

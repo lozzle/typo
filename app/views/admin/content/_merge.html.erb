@@ -1,0 +1,4 @@
+<%= form_tag :action => 'merge_articles', :id => params[:id] do %>
+  <%= text_field_tag 'merge' %>
+  <%= submit_tag 'Merge', :id => "merge_submit" %>
+<% end %>

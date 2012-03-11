@@ -4,3 +4,10 @@
   <%= render :partial => "form" %>
 
 <% end %>
+  
+<% if current_user.admin? %>
+  <div class=''>
+    <h4><%= _("Merge") %></h4>
+    <%= render 'admin/content/merge' %>
+  </div>
+<% end %>

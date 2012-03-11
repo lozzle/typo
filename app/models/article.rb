@@ -466,4 +466,21 @@ class Article < Content
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
   end
+  
+  def self.merge(article_1, article_2)
+    return false if !article_1.match(/[\d]+/) || !article_2.match(/[\d]+/)
+    base_article = self.find_by_id(article_1)
+    article_to_merge = self.find_by_id(article_2)
+    comments_to_merge = Comment.find_by_article_id(article_2)
+    base_article.body += "<br/><br/>Merged article below<br/><br/>" + article_to_merge.body
+    if comments_to_merge != nil
+      comments_to_merge.each do |comment|
+        comment.article = article_1
+        comment.save
+      end
+    end
+    article_to_merge.destroy
+    base_article.save
+    return true
+  end
 end
