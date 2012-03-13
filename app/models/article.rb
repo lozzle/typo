@@ -471,8 +471,9 @@ class Article < Content
     return false if !article_1.match(/[\d]+/) || !article_2.match(/[\d]+/)
     base_article = self.find_by_id(article_1)
     article_to_merge = self.find_by_id(article_2)
+    return false if base_article == nil || article_to_merge == nil
     comments_to_merge = Comment.find_all_by_article_id(article_2)
-    base_article.body += "<br/><br/>Merged article below<br/><br/>" + article_to_merge.body
+    base_article.body += "<br/>" + article_to_merge.body
     comments_to_merge.each do |comment|
       comment.article_id = base_article.id
       comment.save

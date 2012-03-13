@@ -203,6 +203,29 @@ describe Admin::ContentController do
       response.should render_template('_visual_editor')
     end
   end
+  
+  describe 'merge articles action' do
+    before :each do
+      Factory(:blog)
+      @user = Factory(:user, :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+      request.session = { :user => @user.id }
+      @base_article = '1'
+      @to_merge_article = '3'
+    end
+    it 'should succeed and redirect to index action with a notice' do
+      Article.should_receive(:merge).with(@base_article, @to_merge_article).and_return(true)
+      post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
+      response.should redirect_to(:action => 'index')
+      flash[:notice].should == "Article 3 was successfully merged with 1"
+    end
+    it 'should fail and redirect to index action with an error' do
+      @to_merge_article = ''
+      Article.should_receive(:merge).with(@base_article, @to_merge_article).and_return(false)
+      post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
+      response.should redirect_to(:action => 'index')
+      flash[:error].should == "Article merging failed."
+    end
+  end
 
 
   shared_examples_for 'new action' do

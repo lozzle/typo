@@ -604,5 +604,36 @@ describe Article do
     end
 
   end
+  
+  describe "merge" do
+    before :each do
+      @base_article_id = '1'
+      @article_to_merge_id = '3'
+      @mock_base_article = mock('Article')
+      @mock_article_to_merge = mock('Article')
+      @mock_comment = mock('Comment')
+    end
+    
+    it "should make sure both article ids are valid" do
+      @article_to_merge_id = 'fail'
+      @base_article_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      @article_to_merge_id.should_receive(:match).with(/[\d]+/).and_return(false)
+      result = Article.merge(@base_article_id, @article_to_merge_id)
+      result.should == false
+    end
+    
+    it "should merge the article's text" do
+      @base_article_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      @article_to_merge.should_receive(:match).with(/[\d]+/).and_return(true)
+      self.should_receive(:find_by_id).with(@base_article_id).and_return(@mock_base_article)
+      self.should_receive(:find_by_id).with(@article_to_merge_id).and_return(@mock_article_to_merge)
+      @mock_base_article.should_receive(:==).with(nil).and_return(false)
+      @mock_article_to_merge.should_receive(:==).with(nil).and_return(false)
+      Comment.should_receive(:find_all_by_article_id).with(@article_to_merge_id).and_return([@mock_comment])
+      Article.merge(@base_article_id, @article_to_merge_id).should == true
+      result = Article.find_by_id(@mock_base_article.id)
+      result.body.should == ""
+    end
+  end
 end
 
