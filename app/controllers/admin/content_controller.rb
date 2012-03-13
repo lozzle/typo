@@ -54,12 +54,14 @@ class Admin::ContentController < Admin::BaseController
   end
   
   def merge_articles
-    if (Article.merge(params[:id], params[:merge]))
-      flash[:notice] = _("Article #{params[:merge]} was successfully merged with #{params[:id]}")
-      redirect_to :action => 'index'
-    else
-      flash[:error] = _('Article merging failed.')
-      redirect_to :action => 'index'
+    if current_user.admin?
+    	if (Article.merge(params[:id], params[:merge]))
+           flash[:notice] = _("Article #{params[:merge]} was successfully merged with #{params[:id]}")
+      	   redirect_to :action => 'index'
+    	else
+      	   flash[:error] = _('Article merging failed.')
+      	   redirect_to :action => 'index'
+        end
     end
   end
 
