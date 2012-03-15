@@ -632,7 +632,7 @@ describe Article do
       @mock_article_to_merge.should_receive(:destroy)
       Article.merge(@base_article_id, @article_to_merge_id).should == true
       result = Article.find_by_id(@mock_base_article.id)
-      result.body.should == "body1<br/>body2"
+      result.body.should == "body1body2"
     end
     
     it "should merge the articles and keep the author of the first" do
