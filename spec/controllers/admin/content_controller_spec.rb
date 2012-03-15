@@ -207,11 +207,12 @@ describe Admin::ContentController do
   describe 'merge articles action' do
     before :each do
       Factory(:blog)
-      @user = Factory(:user, :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+      @user = Factory(:user, :profile=>Factory(:profile_admin, :label=>Profile::ADMIN))
       request.session = { :user => @user.id }
       @base_article = '1'
       @to_merge_article = '3'
     end
+    
     it 'should succeed and redirect to index action with a notice' do
       Article.should_receive(:merge).with(@base_article, @to_merge_article).and_return(true)
       post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
@@ -224,6 +225,13 @@ describe Admin::ContentController do
       post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
       response.should redirect_to(:action => 'index')
       flash[:error].should == "Article merging failed."
+    end
+    it 'should not do anything if the user is a non-admin' do
+      @user = Factory(:user)
+      request.session = {:user => @user.id}
+      post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
+      flash[:notice].should == nil
+      flash[:error].should == nil
     end
   end
 
