@@ -609,9 +609,9 @@ describe Article do
     before :each do
       @base_article_id = '1'
       @article_to_merge_id = '3'
-      @mock_base_article = mock('Article')
-      @mock_article_to_merge = mock('Article')
-      @mock_comment = mock('Comment')
+      @mock_base_article = Factory(:article, :id=>1, :body => "body1", :author => "auth1")
+      @mock_article_to_merge = Factory(:article, :id=>3, :body => "body2", :author => "auth2")
+      @mock_comment = Factory(:comment, :article_id => 3)
     end
     
     it "should make sure both article ids are valid" do
@@ -622,17 +622,45 @@ describe Article do
       result.should == false
     end
     
-    it "should merge the article's text" do
+    it "should merge the article's text and return true" do
       @base_article_id.should_receive(:match).with(/[\d]+/).and_return(true)
-      @article_to_merge.should_receive(:match).with(/[\d]+/).and_return(true)
-      self.should_receive(:find_by_id).with(@base_article_id).and_return(@mock_base_article)
-      self.should_receive(:find_by_id).with(@article_to_merge_id).and_return(@mock_article_to_merge)
+      @article_to_merge_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      Article.should_receive(:find_by_id).with(@base_article_id).and_return(@mock_base_article)
+      Article.should_receive(:find_by_id).with(@article_to_merge_id).and_return(@mock_article_to_merge)
+      @mock_base_article.should_receive(:==).with(nil).and_return(false)
+      @mock_article_to_merge.should_receive(:==).with(nil).and_return(false)
+      @mock_article_to_merge.should_receive(:destroy)
+      Article.merge(@base_article_id, @article_to_merge_id).should == true
+      result = Article.find_by_id(@mock_base_article.id)
+      result.body.should == "body1<br/>body2"
+    end
+    
+    it "should merge the articles and keep the author of the first" do
+      @base_article_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      @article_to_merge_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      Article.should_receive(:find_by_id).with(@base_article_id).and_return(@mock_base_article)
+      Article.should_receive(:find_by_id).with(@article_to_merge_id).and_return(@mock_article_to_merge)
+      @mock_base_article.should_receive(:==).with(nil).and_return(false)
+      @mock_article_to_merge.should_receive(:==).with(nil).and_return(false)
+      @mock_article_to_merge.should_receive(:destroy)
+      Article.merge(@base_article_id, @article_to_merge_id).should == true
+      result = Article.find_by_id(@mock_base_article.id)
+      result.author.should == "auth1"
+    end
+    
+    it "should merge the articles the comments" do
+      @base_article_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      @article_to_merge_id.should_receive(:match).with(/[\d]+/).and_return(true)
+      Article.should_receive(:find_by_id).with(@base_article_id).and_return(@mock_base_article)
+      Article.should_receive(:find_by_id).with(@article_to_merge_id).and_return(@mock_article_to_merge)
       @mock_base_article.should_receive(:==).with(nil).and_return(false)
       @mock_article_to_merge.should_receive(:==).with(nil).and_return(false)
       Comment.should_receive(:find_all_by_article_id).with(@article_to_merge_id).and_return([@mock_comment])
+      @mock_article_to_merge.should_receive(:destroy)
       Article.merge(@base_article_id, @article_to_merge_id).should == true
       result = Article.find_by_id(@mock_base_article.id)
-      result.body.should == ""
+      result.comments.should == [@mock_comment]
+      Comment.find_by_id(@mock_comment.id).article_id.should == @mock_base_article.id
     end
   end
 end
