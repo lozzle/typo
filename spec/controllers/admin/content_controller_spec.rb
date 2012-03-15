@@ -213,13 +213,13 @@ describe Admin::ContentController do
       @to_merge_article = '3'
     end
     
-    it 'should succeed and redirect to index action with a notice' do
+    it 'should redirect to index action with a notice if the user is an admin and merge is successful' do
       Article.should_receive(:merge).with(@base_article, @to_merge_article).and_return(true)
       post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
       response.should redirect_to(:action => 'index')
       flash[:notice].should == "Article 3 was successfully merged with 1"
     end
-    it 'should fail and redirect to index action with an error' do
+    it 'should fail and redirect to index action with an error if the user is an admin and merge is unsuccessful' do
       @to_merge_article = ''
       Article.should_receive(:merge).with(@base_article, @to_merge_article).and_return(false)
       post :merge_articles, {:id => @base_article, :merge => @to_merge_article}
