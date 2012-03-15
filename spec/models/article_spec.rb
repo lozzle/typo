@@ -611,7 +611,7 @@ describe Article do
       @article_to_merge_id = '3'
       @mock_base_article = Factory(:article, :id=>1, :body => "body1", :author => "auth1")
       @mock_article_to_merge = Factory(:article, :id=>3, :body => "body2", :author => "auth2")
-      @mock_comment = Factory(:comment, :article_id => 3)
+      @mock_comment = Factory(:comment)
     end
     
     it "should make sure both article ids are valid" do
@@ -656,6 +656,8 @@ describe Article do
       @mock_base_article.should_receive(:==).with(nil).and_return(false)
       @mock_article_to_merge.should_receive(:==).with(nil).and_return(false)
       Comment.should_receive(:find_all_by_article_id).with(@article_to_merge_id).and_return([@mock_comment])
+      @mock_comment.article_id=1
+      @mock_comment.should_receive(:save)
       @mock_article_to_merge.should_receive(:destroy)
       Article.merge(@base_article_id, @article_to_merge_id).should == true
       result = Article.find_by_id(@mock_base_article.id)
