@@ -51,9 +51,6 @@ describe "admin/content/new.html.erb" do
     rendered.should render_template(:partial => "admin/content/_merge")
   end
 
-  it "should render the merge form if user is an admin" do
-  end
-
   it "should not render a header tag titled Merge if user is a non-admin" do
     non_admin = stub_model(User, :settings => {:editor => 'simple'}, :admin? => false)
     view.stub(:current_user) {non_admin}
